@@ -9,6 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoodLookin">
+        <activity android:name=".LearnMoreActivity"></activity>
+        <activity android:name=".ResultsActivity" />
+        <activity android:name=".ConfirmActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

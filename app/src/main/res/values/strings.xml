@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">GoodLookin</string>
+    <string name="learn_more_title">What is GoodLookin?</string>
+    <string name="learn_more_description">GoodLookin is blah lja;ioej;;j;fa j;dfj ;adf; ae;kf ja;ekjf ;ioaef; jkane;fh;akejwnf ;kajeh f;kajef lkjae</string>
+    <string name="pic_description">Most recent picture taken</string>
+    <string name="confirm_button">CONFIRM</string>
+    <string name="retake_button">RETAKE</string>
+
 </resources>
