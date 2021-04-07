@@ -5,5 +5,6 @@
     <string name="pic_description">Most recent picture taken</string>
     <string name="confirm_button">CONFIRM</string>
     <string name="retake_button">RETAKE</string>
+    <string name="search_prompt">Search</string>
 
 </resources>
