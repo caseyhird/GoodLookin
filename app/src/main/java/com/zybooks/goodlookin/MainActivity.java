@@ -19,7 +19,8 @@ public class MainActivity extends AppCompatActivity {
         searchText = findViewById(R.id.searchEditText);
     }
 
-    private void textSearchClick(View view) {
+
+    public void textSearchClick(View view) {
         String searchVal = searchText.getText().toString();
         Intent intent = new Intent(this, ResultsActivity.class);
         intent.putExtra(ResultsActivity.EXTRA_SEARCH_VAL, searchVal);
