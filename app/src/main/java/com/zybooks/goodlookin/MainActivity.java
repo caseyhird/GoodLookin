@@ -1,12 +1,14 @@
 package com.zybooks.goodlookin;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -17,6 +19,12 @@ import androidx.lifecycle.LifecycleOwner;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,7 +37,9 @@ import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -153,7 +163,36 @@ public class MainActivity extends AppCompatActivity {
                 SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
                 File file = new File(getBatchDirectoryName(), mDateFormat.format(new Date())+ ".jpg");
 
+                // Add picture to image view and
+                // Called when picture is taken
+                imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
+                    @Override
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
+                        super.onCaptureSuccess(image);
+                        // Passing image to next activity from https://stackoverflow.com/questions/11519691/passing-image-from-one-activity-another-activity
+                        // Image proxy to bitmap conversion https://stackoverflow.com/questions/56772967/converting-imageproxy-to-bitmap
+                        sendToConfirmation(image);
+
+                      //  Bitmap b = convertImageProxyToBitmap(image);
+                       // image.close();
+                       // Intent confirm = new Intent(, ConfirmActivity.class);
+                       /// confirm.putExtra("Bitmap", b);
+                        //startActivity(confirm);
+
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        super.onError(exception);
+                        // Toast user and then do nothing
+                        couldNotCaptureToast();
+                    }
+                });
+
+/*
                 ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
+
                 imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
@@ -169,10 +208,54 @@ public class MainActivity extends AppCompatActivity {
                         error.printStackTrace();
                     }
                 });
+
+                */
             }
         });
     }
 
+    private void sendToConfirmation(ImageProxy image) {
+        ByteBuffer byteBuffer = image.getPlanes()[0].getBuffer();
+        byteBuffer.rewind();
+        byte[] bytes = new byte[byteBuffer.capacity()];
+        byteBuffer.get(bytes);
+        byte[] clonedBytes = bytes.clone();
+        Bitmap b = BitmapFactory.decodeByteArray(clonedBytes, 0, clonedBytes.length);
+
+        image.close();
+        Intent confirm = new Intent(this, ConfirmActivity.class);
+        confirm.putExtra("Bitmap", b);
+        startActivity(confirm);
+    }
+
+    // FIXME: no neede anymore?
+    private Bitmap toBitmap(Image image) {
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer yBuffer = planes[0].getBuffer();
+        ByteBuffer uBuffer = planes[1].getBuffer();
+        ByteBuffer vBuffer = planes[2].getBuffer();
+
+        int ySize = yBuffer.remaining();
+        int uSize = uBuffer.remaining();
+        int vSize = vBuffer.remaining();
+
+        byte[] nv21 = new byte[ySize + uSize + vSize];
+        //U and V are swapped
+        yBuffer.get(nv21, 0, ySize);
+        vBuffer.get(nv21, ySize, vSize);
+        uBuffer.get(nv21, ySize + vSize, uSize);
+
+        YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 75, out);
+
+        byte[] imageBytes = out.toByteArray();
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+    }
+
+    public void couldNotCaptureToast() {
+        Toast.makeText(this, "Image Could Not Be Captured.", Toast.LENGTH_SHORT).show();
+    }
 
     public String getBatchDirectoryName() {
 
