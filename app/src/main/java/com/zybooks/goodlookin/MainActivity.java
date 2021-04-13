@@ -5,6 +5,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
         // FIXME removing imageAnalysis before imageCapture
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture);
-
+        // was Camera
 
 
         captureImage.setOnClickListener(new View.OnClickListener() {
@@ -165,13 +166,14 @@ public class MainActivity extends AppCompatActivity {
 
                 // Add picture to image view and
                 // Called when picture is taken
+                /*
                 imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onCaptureSuccess(@NonNull ImageProxy image) {
                         super.onCaptureSuccess(image);
                         // Passing image to next activity from https://stackoverflow.com/questions/11519691/passing-image-from-one-activity-another-activity
                         // Image proxy to bitmap conversion https://stackoverflow.com/questions/56772967/converting-imageproxy-to-bitmap
-                        sendToConfirmation(image);
+                        //sendToConfirmation(image);
 
                       //  Bitmap b = convertImageProxyToBitmap(image);
                        // image.close();
@@ -189,8 +191,9 @@ public class MainActivity extends AppCompatActivity {
                         couldNotCaptureToast();
                     }
                 });
+                */
 
-/*
+
                 ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
 
                 imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
@@ -209,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                */
+
             }
         });
     }
