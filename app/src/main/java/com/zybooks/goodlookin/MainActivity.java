@@ -20,6 +20,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -74,7 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
         for (String permission : REQUIRED_PERMISSIONS){
             // FIXME: can just pass 'this' for context
-            if(ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(getApplicationContext(), permission) != PackageManager.PERMISSION_GRANTED){
+                Log.d("PERMISSION DONT HAVE", permission);
                 return false;
             }
         }
