@@ -32,7 +32,7 @@ public class ResultsActivity extends AppCompatActivity {
     private static final String HEADER_SUB_KEY = "Ocp-Apim-Subscription-Key";
     private static final String PRIVATE_KEY_1 = "474c1e670b084ad0bafd268a056602ab";
     private String searchVal;
-    private String url = "https://api.bing.microsoft.com/v7.0/search?q=" + searchVal;
+    private String url = "https://api.bing.microsoft.com/v7.0/search?q=";
     private String header = "474c1e670b084ad0bafd268a056602ab";
 
     private String encodeVal(String input){
@@ -57,13 +57,14 @@ public class ResultsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.getExtras().containsKey(EXTRA_SEARCH_VAL))
             searchVal = intent.getStringExtra(EXTRA_SEARCH_VAL);
-//        TextView t = findViewById(R.id.searchString);
+        TextView t = findViewById(R.id.searchString);
 //        t.setText(searchVal);
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
         //Add the search value to the query
-        url += encodeVal(searchVal);
+        String qParam = encodeVal(searchVal);
+        url += qParam;
 
         // Create a new JsonObjectRequest that requests available weather info
         JsonObjectRequest requestObj = new JsonObjectRequest
@@ -73,10 +74,11 @@ public class ResultsActivity extends AppCompatActivity {
                         Log.d(TAG, "JSON response: " + response.toString());
                         List<SearchValue> info = parseJson(response);
                         //Test print
-// FIXME                        for(int i=0; i < info.size(); ++i){
-//                            System.out.println(info.get(i).getName() + ", " +
-//                                    info.get(i).getUrl() + ", " + info.get(i).getSnippet());
-//                        }
+                        t.setText(info.get(0).getSnippet());
+                        for(int i=0; i < info.size(); ++i){
+                            System.out.println(info.get(i).getName() + ", " +
+                                    info.get(i).getUrl() + ", " + info.get(i).getSnippet());
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -95,27 +97,22 @@ public class ResultsActivity extends AppCompatActivity {
         };
         // Add the request to the RequestQueue
         queue.add(requestObj);
-
-        TextView t = findViewById(R.id.searchString);
-        t.setText(searchVal);
     }
 
     private List<SearchValue> parseJson (JSONObject json){
         List<SearchValue> infoList = new ArrayList<>();
 
         try{
-            JSONObject tempObj = json.getJSONObject("webpages");
-            double temp = tempObj.getLong("temp");
-            Log.d(TAG, String.valueOf(temp));
+            JSONObject tempObj = json.getJSONObject("webPages");
 
             JSONArray values = tempObj.getJSONArray("value");
             for (int i = 0; i < 3; ++i){
                 String name = values.getJSONObject(i).getString("name");
-// FIXME                System.out.println(name);
+//FIXME                System.out.println(name);
                 String url = values.getJSONObject(i).getString("url");
-// FIXME                System.out.println(url);
+//FIXME                System.out.println(url);
                 String snippet = values.getJSONObject(i).getString("snippet");
-// FIXME                System.out.println(snippet);
+//FIXME                System.out.println(snippet);
 
                 SearchValue item = new SearchValue(name, url, snippet);
                 infoList.add(item);
