@@ -57,8 +57,7 @@ public class ResultsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent.getExtras().containsKey(EXTRA_SEARCH_VAL))
             searchVal = intent.getStringExtra(EXTRA_SEARCH_VAL);
-        TextView t = findViewById(R.id.searchString);
-//        t.setText(searchVal);
+        TextView t = findViewById(R.id.searchString); // FIXME Need to implement an actual UI for results
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
@@ -75,10 +74,6 @@ public class ResultsActivity extends AppCompatActivity {
                         List<SearchValue> info = parseJson(response);
                         //Test print
                         t.setText(info.get(0).getSnippet());
-                        for(int i=0; i < info.size(); ++i){
-                            System.out.println(info.get(i).getName() + ", " +
-                                    info.get(i).getUrl() + ", " + info.get(i).getSnippet());
-                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -108,11 +103,8 @@ public class ResultsActivity extends AppCompatActivity {
             JSONArray values = tempObj.getJSONArray("value");
             for (int i = 0; i < 3; ++i){
                 String name = values.getJSONObject(i).getString("name");
-//FIXME                System.out.println(name);
                 String url = values.getJSONObject(i).getString("url");
-//FIXME                System.out.println(url);
                 String snippet = values.getJSONObject(i).getString("snippet");
-//FIXME                System.out.println(snippet);
 
                 SearchValue item = new SearchValue(name, url, snippet);
                 infoList.add(item);
