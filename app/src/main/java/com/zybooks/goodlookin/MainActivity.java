@@ -153,10 +153,12 @@ public class MainActivity extends AppCompatActivity {
                 .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
                 .build();
 
+        // FIXME changed from createSurfaceProvider()
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-        // FIXME add back imageCapture
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);
-
+        // FIXME removing imageAnalysis before imageCapture
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview); //FIXME add , imageCapture
+        // was Camera
+        
         captureImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
