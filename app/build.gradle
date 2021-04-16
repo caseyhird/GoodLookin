@@ -26,6 +26,21 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    // Fix error 'More than one file was found with OS independent path 'META-INF/INDEX.LIST'.'
+    // Solution from https://stackoverflow.com/questions/35417464/why-are-gradle-build-packagingoptions-needed
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/INDEX.LIST'
+    }
+
 }
 
 dependencies {
@@ -38,6 +53,12 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    // To use google vision
+    // From https://cloud.google.com/vision/docs/quickstart-client-libraries
+    implementation platform('com.google.cloud:libraries-bom:20.0.0')
+    // compile is deprecated; replace with implementation
+    implementation 'com.google.cloud:google-cloud-vision'
+
     // CameraX core library using the camera2 implementation
     def camerax_version = "1.0.0-rc04"
     // The following line is optional, as the core library is included indirectly by camera-camera2
@@ -49,4 +70,24 @@ dependencies {
     implementation "androidx.camera:camera-view:1.0.0-alpha23"
     // If you want to additionally use the CameraX Extensions library
     implementation "androidx.camera:camera-extensions:1.0.0-alpha23"
+
+    // fix error No functional channel service provider found. Try adding a dependency on the grpc-okhttp, grpc-netty, or grpc-netty-shaded artifact
+    // found at https://github.com/google/java-photoslibrary/issues/9
+    implementation ('io.grpc:grpc-protobuf:1.10.1'){
+        exclude group: 'org.apache.httpcomponents', module:'httpclient'
+    }
+    implementation ('io.grpc:grpc-stub:1.10.1'){
+        exclude group: 'org.apache.httpcomponents', module:'httpclient'
+    }
+    implementation ('com.google.api:gax:1.29.0'){
+        exclude group: 'org.apache.httpcomponents', module:'httpclient'
+    }
+    implementation ('io.grpc:grpc-okhttp:1.10.1'){
+        exclude group: 'org.apache.httpcomponents', module:'httpclient'
+    }
+    implementation ('com.google.photos.library:google-photos-library-client:1.1.0'){
+        exclude group: 'org.apache.httpcomponents', module:'httpclient'
+    }
+    //implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+
 }

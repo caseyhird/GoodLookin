@@ -50,6 +50,7 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     EditText searchText;
+    String image_path;
 
     // Permsission and androix camera from https://akhilbattula.medium.com/android-camerax-java-example-aeee884f9102
     // note requesting permisson for camera and external storage?
@@ -80,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
         if (allPermissionsGranted()) {
             startCamera();
         }
+    }
+
+    // FIXME: FOR TESTING CONFIRM ACTIVITY--DELETE LATER
+    public void startConfirm(View view) {
+        Intent confirm = new Intent(this, ConfirmActivity.class);
+        startActivity(confirm);
     }
 
     private boolean allPermissionsGranted(){
@@ -130,12 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Requiring lens facing back
         CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                .build();
-        // FIXME: shoudln't need image analysis, unless can start google lens here
-    //    ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
-    //            .build();
-
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
         //Vendor-Extensions (The CameraX extensions dependency in build.gradle)
@@ -150,50 +152,18 @@ public class MainActivity extends AppCompatActivity {
         final ImageCapture imageCapture = builder
                 .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
                 .build();
-        // FIXME changed from createSurfaceProvider()
-        preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-        // FIXME removing imageAnalysis before imageCapture
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture);
-        // was Camera
 
+        preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+        // FIXME add back imageCapture
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);
 
         captureImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                // Get unique file name
                 SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
                 File file = new File(getBatchDirectoryName(), mDateFormat.format(new Date())+ ".jpg");
-
-                // Add picture to image view and
-                // Called when picture is taken
-                /*
-                imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
-                    @Override
-                    public void onCaptureSuccess(@NonNull ImageProxy image) {
-                        super.onCaptureSuccess(image);
-                        // Passing image to next activity from https://stackoverflow.com/questions/11519691/passing-image-from-one-activity-another-activity
-                        // Image proxy to bitmap conversion https://stackoverflow.com/questions/56772967/converting-imageproxy-to-bitmap
-                        //sendToConfirmation(image);
-
-                      //  Bitmap b = convertImageProxyToBitmap(image);
-                       // image.close();
-                       // Intent confirm = new Intent(, ConfirmActivity.class);
-                       /// confirm.putExtra("Bitmap", b);
-                        //startActivity(confirm);
-
-
-                    }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        super.onError(exception);
-                        // Toast user and then do nothing
-                        couldNotCaptureToast();
-                    }
-                });
-                */
-
-
+                image_path = file.getAbsolutePath();
                 ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(file).build();
 
                 imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
@@ -215,49 +185,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private void sendToConfirmation(ImageProxy image) {
-        ByteBuffer byteBuffer = image.getPlanes()[0].getBuffer();
-        byteBuffer.rewind();
-        byte[] bytes = new byte[byteBuffer.capacity()];
-        byteBuffer.get(bytes);
-        byte[] clonedBytes = bytes.clone();
-        Bitmap b = BitmapFactory.decodeByteArray(clonedBytes, 0, clonedBytes.length);
-
-        image.close();
-        Intent confirm = new Intent(this, ConfirmActivity.class);
-        confirm.putExtra("Bitmap", b);
-        startActivity(confirm);
-    }
-
-    // FIXME: no neede anymore?
-    private Bitmap toBitmap(Image image) {
-        Image.Plane[] planes = image.getPlanes();
-        ByteBuffer yBuffer = planes[0].getBuffer();
-        ByteBuffer uBuffer = planes[1].getBuffer();
-        ByteBuffer vBuffer = planes[2].getBuffer();
-
-        int ySize = yBuffer.remaining();
-        int uSize = uBuffer.remaining();
-        int vSize = vBuffer.remaining();
-
-        byte[] nv21 = new byte[ySize + uSize + vSize];
-        //U and V are swapped
-        yBuffer.get(nv21, 0, ySize);
-        vBuffer.get(nv21, ySize, vSize);
-        uBuffer.get(nv21, ySize + vSize, uSize);
-
-        YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 75, out);
-
-        byte[] imageBytes = out.toByteArray();
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-    }
-
-    public void couldNotCaptureToast() {
-        Toast.makeText(this, "Image Could Not Be Captured.", Toast.LENGTH_SHORT).show();
     }
 
     public String getBatchDirectoryName() {
