@@ -1,11 +1,11 @@
 package com.zybooks.goodlookin;
 
-public class SearchValue {
-    private String name;
-    private String url;
-    private String snippet;
+public class ResultValue {
+    private String name = "no value";
+    private String url = "no value";
+    private String snippet = "no value";
 
-    public SearchValue(String nameVal, String urlVal, String snippetVal){
+    public ResultValue(String nameVal, String urlVal, String snippetVal){
         name = nameVal;
         url = urlVal;
         snippet = snippetVal;

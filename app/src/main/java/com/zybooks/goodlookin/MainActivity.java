@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         // FIXME changed from createSurfaceProvider()
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
         // FIXME removing imageAnalysis before imageCapture
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture);
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview); //FIXME add , imageCapture
         // was Camera
 
 
