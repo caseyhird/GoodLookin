@@ -105,29 +105,7 @@ public class VisionSearch {
             throw e;
         }
       //   try (
-                /*
-                ImageAnnotatorSettings.Builder imageAnnotatorSettingsBuilder = ImageAnnotatorSettings.newBuilder();
-                imageAnnotatorSettingsBuilder
-                        .batchAnnotateImagesSettings()
-                        .setRetrySettings(
-                                imageAnnotatorSettingsBuilder
-                                        .batchAnnotateImagesSettings()
-                                        .getRetrySettings()
-                                        .toBuilder()
-                                        .setTotalTimeout(Duration.ofSeconds(30))
-                                        .build());
-                ImageAnnotatorSettings imageAnnotatorSettings = imageAnnotatorSettingsBuilder.build();
-                */
-                /*
-                // authentication attempt from https://stackoverflow.com/questions/47609597/how-can-i-use-imageannotatorclient-with-explicit-authentication
-                val credStream = getInputStream( "my-api-key.json" )
-                val credentials = GoogleCredentials.fromStream(credStream)
-                val imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder()
-                    .setCredentialsProvider( FixedCredentialsProvider.create( credentials ) )
-                    .build();
-                ImageAnnotatorClient.create( imageAnnotatorSettings )
-                ImageAnnotatorClient vision = ImageAnnotatorClient.create();
-                */
+
                 // trying again from https://stackoverflow.com/questions/48850479/google-vision-api-load-credentials-from-file
 
 
