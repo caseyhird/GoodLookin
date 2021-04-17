@@ -141,6 +141,8 @@ public class VisionSearch {
                     }
 
                     for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
+                        // Need to getAllFields(), each should return a label and the strength
+                        // of that label, send this list to the search
                         annotation.getAllFields()
                                 .forEach((k, v) -> Log.d("Label: ", k + " " + v.toString()));
                     }
