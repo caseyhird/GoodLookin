@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.io.IOException;
 
 public class ConfirmActivity extends AppCompatActivity {
@@ -80,6 +81,9 @@ public class ConfirmActivity extends AppCompatActivity {
     }
 
     public void onRetakeClick(View view) {
-
+        // FIXME: File from API 30?????
+        File file = new File(image_path);
+        boolean deleted = file.delete();
+        backToMain();
     }
 }
