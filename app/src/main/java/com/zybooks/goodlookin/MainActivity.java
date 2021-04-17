@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Executor executor = Executors.newSingleThreadExecutor();
     PreviewView mPreviewView;
     ImageView captureImage;
+    ImageView learnMore;
 
 
     @Override
@@ -71,6 +72,14 @@ public class MainActivity extends AppCompatActivity {
         mPreviewView = findViewById(R.id.preview_area);
         // do something with image capture or send straight to next activity?
         captureImage = findViewById(R.id.captureImg);
+        learnMore = findViewById(R.id.learn_more);
+
+        learnMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startLearnMore();
+            }
+        });
 
         if(allPermissionsGranted()){
             startCamera(); //start camera if permission has been granted by user
@@ -81,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
         if (allPermissionsGranted()) {
             startCamera();
         }
+    }
+
+    public void startLearnMore() {
+        Intent confirm = new Intent(this, LearnMoreActivity.class);
+        startActivity(confirm);
     }
 
     // FIXME: FOR TESTING CONFIRM ACTIVITY--DELETE LATER
