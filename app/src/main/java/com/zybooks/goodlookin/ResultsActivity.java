@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -55,8 +54,7 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
     @Override
     public void onItemClick(View view, int position){
         //add functionality to go to url
-        TextView urlTV = findViewById(R.id.urlLink);
-        String URL = urlTV.getText().toString();
+        String URL = adapter.getItem(position).getUrl();
         Uri uri = Uri.parse(URL);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
