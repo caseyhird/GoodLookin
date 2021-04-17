@@ -7,6 +7,7 @@
     <string name="retake_button">RETAKE</string>
     <string name="search_prompt">Search</string>
     <string name="preview_area">Camera Preview</string>
+    <string name="search_button">SEARCH</string>
 
     <string name="credentials">{
   "type": "service_account",

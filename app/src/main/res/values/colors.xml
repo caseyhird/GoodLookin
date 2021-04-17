@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Color scheme from http://colormind.io/ -->
+    <color name="dark_purple">#402C33</color>
+    <color name="light_blue">#A1C4B5</color>
+    <color name="off_white">#E9DFD0</color>
+    <color name="light_orange">#E7AC60</color>
+    <color name="light_red">#DB5B59</color>
+
 </resources>

@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         // FIXME removing imageAnalysis before imageCapture
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview); //FIXME add , imageCapture
         // was Camera
-        
+
         captureImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

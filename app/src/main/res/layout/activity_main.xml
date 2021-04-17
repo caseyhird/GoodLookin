@@ -13,6 +13,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/textSearch"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
         android:hint="@string/search_prompt"/>
 
     <Button
@@ -21,8 +23,11 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:text="Search by text"
-        android:onClick="textSearchClick"/>
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:text="@string/search_button"
+        android:onClick="textSearchClick"
+        style="@style/button_style"/>
 
     <androidx.camera.view.PreviewView
         android:id="@+id/preview_area"
@@ -39,6 +44,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:src="@drawable/camera_icon" />
 
@@ -46,8 +52,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/captureImg"
+        app:layout_constraintRight_toRightOf="parent"
         android:text="go to confirm"
-        android:onClick="startConfirm"/>
+        android:onClick="startConfirm"
+        style="@style/button_style"/>
+
+    <ImageView
+        android:id="@+id/learn_more"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_margin="30dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/question_mark_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
