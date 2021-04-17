@@ -1,16 +1,16 @@
 package com.zybooks.goodlookin;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ListView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -46,7 +46,7 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
         try{
             encodedVal = URLEncoder.encode(input, StandardCharsets.UTF_8.toString());
         }catch(Exception UnSupportedEncodingException){
-            System.out.println("Failed to encode search parameter, using un-encoded value");
+            Log.d("Encoding: ", "Failed to encode search parameter, using un-encoded value");
             return input;
         }
         return encodedVal;
@@ -55,6 +55,11 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
     @Override
     public void onItemClick(View view, int position){
         //add functionality to go to url
+        TextView urlTV = findViewById(R.id.urlLink);
+        String URL = urlTV.getText().toString();
+        Uri uri = Uri.parse(URL);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 
     @Override
@@ -66,16 +71,12 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
         Intent intent = getIntent();
         if (intent.getExtras().containsKey(EXTRA_SEARCH_VAL))
             searchVal = intent.getStringExtra(EXTRA_SEARCH_VAL);
-        //TextView t = findViewById(R.id.searchString); // FIXME Need to implement an actual UI for results
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
         //Add the search value to the query
         String qParam = encodeVal(searchVal);
         url += qParam;
-
-        //Create adapter for data set to be populated by JSON data
-//        SearchValueAdapter adapter = new SearchValueAdapter(this, info);
 
         // Create a new JsonObjectRequest that requests available weather info
         JsonObjectRequest requestObj = new JsonObjectRequest
@@ -84,9 +85,15 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
                     public void onResponse(JSONObject response) {
                         Log.d(TAG, "JSON response: " + response.toString());
                         info = parseJson(response);
-                        adapter.notifyDataSetChanged();
-                        //Test print
-//                        t.setText(info.get(0).getSnippet());
+                        System.out.println("PARSE JSON FUNCTION CALLED");
+                        RecyclerView recyclerView = findViewById(R.id.result_recycler_view);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(ResultsActivity.this));
+                        adapter = new SearchValueAdapter(ResultsActivity.this, info);
+                        adapter.setClickListener(ResultsActivity.this);
+                        recyclerView.setAdapter(adapter);
+
+                        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+                        recyclerView.addItemDecoration(dividerItemDecoration);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -105,16 +112,6 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
         };
         // Add the request to the RequestQueue
         queue.add(requestObj);
-
-        RecyclerView recyclerView = findViewById(R.id.result_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new SearchValueAdapter(this, info);
-        adapter.setClickListener(this);
-        recyclerView.setAdapter(adapter);
-
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-//                layoutManager.getOrientation());
-//        recyclerView.addItemDecoration(dividerItemDecoration);
     }
 
     private ArrayList<ResultValue> parseJson (JSONObject json){
@@ -124,12 +121,15 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
             JSONObject tempObj = json.getJSONObject("webPages");
 
             JSONArray values = tempObj.getJSONArray("value");
-            for (int i = 0; i < 3; ++i){
-                String name = values.getJSONObject(i).getString("name");
-                String url = values.getJSONObject(i).getString("url");
-                String snippet = values.getJSONObject(i).getString("snippet");
+            for (int i = 0; i < 10; ++i){
+                String nameVal = values.getJSONObject(i).getString("name");
+                String urlVal = values.getJSONObject(i).getString("url");
+                String snippetVal = values.getJSONObject(i).getString("snippet");
+                snippetVal = snippetVal.substring(0,50) + "...";
+                //For some reason editing the nameVal with substring causes an invalid JSON parse
+//                nameVal = nameVal.substring(0,45) + "...";
 
-                ResultValue item = new ResultValue(name, url, snippet);
+                ResultValue item = new ResultValue(nameVal, urlVal, snippetVal);
                 infoList.add(item);
             }
         }

@@ -4,9 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -22,8 +22,9 @@ public class SearchValueAdapter extends RecyclerView.Adapter<SearchValueAdapter.
         this.mData = data;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
         View view = mInflater.inflate(R.layout.recyclerview_item, parent, false);
         return new ViewHolder(view);
     }
@@ -52,6 +53,8 @@ public class SearchValueAdapter extends RecyclerView.Adapter<SearchValueAdapter.
         ViewHolder(View itemView){
             super(itemView);
             urlTextView = itemView.findViewById(R.id.urlLink);
+            nameTextView = itemView.findViewById(R.id.name);
+            snippetTextView = itemView.findViewById(R.id.snippet);
             itemView.setOnClickListener(this);
         }
 
