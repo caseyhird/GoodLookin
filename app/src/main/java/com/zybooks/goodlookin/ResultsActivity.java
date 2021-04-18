@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -37,8 +38,11 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
     private String searchVal;
     private String location;
     private String url = "https://api.bing.microsoft.com/v7.0/search?q=";
+    private String editURL;
     private ArrayList<ResultValue> info = new ArrayList<>();
     SearchValueAdapter adapter;
+    RequestQueue queue;
+    EditText refineET;
 
     private String encodeVal(String input){
 
@@ -74,21 +78,74 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
         if (intent.getExtras().containsKey(EXTRA_LOC_VAL))
             location = intent.getStringExtra(EXTRA_LOC_VAL);
 
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        queue = Volley.newRequestQueue(getApplicationContext());
 
         //Add the search value to the query
         if(!(location == null)){
             searchVal += " " + location;
         }
-        String qParam = encodeVal(searchVal);
-        url += qParam;
 
-        // Create a new JsonObjectRequest that requests available weather info
+        String qParam = encodeVal(searchVal);
+        editURL = url + qParam;
+
+        // Create a new JsonObjectRequest that requests available search info
         JsonObjectRequest requestObj = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, editURL, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         Log.d(TAG, "JSON response: " + response.toString());
+                        info = parseJson(response);
+
+                        RecyclerView recyclerView = findViewById(R.id.result_recycler_view);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(ResultsActivity.this));
+                        adapter = new SearchValueAdapter(ResultsActivity.this, info);
+                        adapter.setClickListener(ResultsActivity.this);
+                        recyclerView.setAdapter(adapter);
+
+                        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+                        recyclerView.addItemDecoration(dividerItemDecoration);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "Error: " + error.toString());
+                    }
+                })
+        {
+            //Pass request headers
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put(HEADER_SUB_KEY, PRIVATE_KEY_1);
+                return headers;
+            }
+        };
+        // Add the request to the RequestQueue
+        queue.add(requestObj);
+    }
+
+    public void refineClick(View view){
+        refineET = findViewById(R.id.refineEditText);
+        String refineText = refineET.getText().toString();
+        if(!refineText.equals("")) {
+            refineSearch(refineText);
+        }
+    }
+
+    private void refineSearch(String newStr){
+
+        String qParam = encodeVal(searchVal + " " + newStr);
+        String editURL = url + qParam;
+
+        // Create a new JsonObjectRequest that requests available search info
+        JsonObjectRequest requestObj = new JsonObjectRequest
+                (Request.Method.GET, editURL, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d(TAG, "JSON response: " + response.toString());
+
+                        clearAdapterData();
+
                         info = parseJson(response);
 
                         RecyclerView recyclerView = findViewById(R.id.result_recycler_view);
@@ -143,5 +200,17 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
         }
 
         return infoList;
+    }
+
+    private void clearAdapterData(){
+
+        int size = info.size();
+
+        if(info.size() > 0) {
+            for (int i = 0; i < size; ++i) {
+                info.remove(0);
+            }
+            adapter.notifyItemRangeRemoved(0, size);
+        }
     }
 }
