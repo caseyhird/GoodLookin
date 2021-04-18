@@ -9,7 +9,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -39,7 +38,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -239,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
         // FIXME changed from createSurfaceProvider()
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
         // FIXME removing imageAnalysis before imageCapture
-        camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture); //FIXME add , imageCapture
+        camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture);
         // was Camera
 
         captureImage.setOnClickListener(new View.OnClickListener() {

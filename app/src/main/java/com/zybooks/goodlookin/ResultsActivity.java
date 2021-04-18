@@ -41,8 +41,8 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
     private String editURL;
     private ArrayList<ResultValue> info = new ArrayList<>();
     SearchValueAdapter adapter;
-    RequestQueue queue;
     EditText refineET;
+    RequestQueue queue;
 
     private String encodeVal(String input){
 
