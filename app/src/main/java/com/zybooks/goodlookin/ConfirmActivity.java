@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -59,22 +60,50 @@ public class ConfirmActivity extends AppCompatActivity
         setContentView(R.layout.activity_confirm);
 
         // external storage version
-        //Intent intent = getIntent();
-        //image_path = intent.getStringExtra("image_path");
-        image_path = "/Users/casey/Documents/Academic/Spring2021/CPSC4150/projects/final_project/project_code/app/src/main/res/drawable-v24/ic_launcher_foreground.xml";
-
-
-        /*
-        image = findViewById(R.id.takenImage);
         Intent intent = getIntent();
-        btm = (Bitmap) intent.getParcelableExtra("bitmap");
-        image.setImageBitmap(btm);
-        */
+        image_path = intent.getStringExtra("image_path");
+
+       // if (image_path == null)
+        Log.d("PATH", image_path);
+        //image_path = "/Users/casey/Documents/Academic/Spring2021/CPSC4150/projects/final_project/project_code/app/src/main/res/drawable-v24/ic_launcher_foreground.xml";
+
+      //  Bitmap btm = BitmapFactory.decodeFile(image_path);
+
+        image = findViewById(R.id.takenImage);
+        //Intent intent = getIntent();
+        //btm = (Bitmap) intent.getParcelableExtra("bitmap");
+     //   image.setImageBitmap(btm);
+
+
+   //     int targetW = image.getWidth();
+    //    int targetH = image.getHeight();
+
+        // Get bitmap dimensions
+    //    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+     //   bmOptions.inJustDecodeBounds = true;
+   //     BitmapFactory.decodeFile(image_path, bmOptions);
+   //     int photoW = bmOptions.outWidth;
+   //     int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+    //    int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+        // Decode the image file into a smaller bitmap that fills the ImageView
+     //   bmOptions.inJustDecodeBounds = false;
+     //   bmOptions.inSampleSize = scaleFactor;
+    //    bmOptions.inPurgeable = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(image_path);
+        Log.d("BITMAP", bitmap.toString());
+        // Display smaller bitmap
+        image.setImageBitmap(bitmap);
+
+
     }
 
     private void backToMain() {
-        Intent confirm = new Intent(this, MainActivity.class);
-        startActivity(confirm);
+        //Intent confirm = new Intent(this, MainActivity.class);
+        //startActivity(confirm);
+        super.onBackPressed();
     }
 
 
@@ -88,7 +117,7 @@ public class ConfirmActivity extends AppCompatActivity
     public void onRetakeClick(View view) {
         // FIXME: File from API 30?????
         File file = new File(image_path);
-        boolean deleted = file.delete();
+        //boolean deleted = file.delete();
         backToMain();
     }
 

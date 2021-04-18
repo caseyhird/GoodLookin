@@ -46,8 +46,9 @@ public class LearnMoreActivity extends AppCompatActivity
     };
 
     private void backToMain() {
-        Intent confirm = new Intent(this, MainActivity.class);
-        startActivity(confirm);
+        //Intent confirm = new Intent(this, MainActivity.class);
+        //startActivity(confirm);
+        super.onBackPressed();
     }
 
     @Override
