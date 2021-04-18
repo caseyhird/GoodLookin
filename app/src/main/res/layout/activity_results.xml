@@ -19,7 +19,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:inputType="text"
             android:autofillHints="Refine your search"
-            android:hint="Add terms to refine your search"/>
+            android:hint="@string/add_terms_to_refine_your_search"/>
 
         <Button
             android:id="@+id/refineButton"
@@ -27,7 +27,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Refine Search"
+            android:text="@string/refine_search"
             android:textSize="10sp"
             android:onClick="refineClick"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
