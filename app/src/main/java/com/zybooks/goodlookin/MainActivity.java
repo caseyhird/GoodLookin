@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(confirm);
     }
     public void startConfirm() {
+        /*
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -134,8 +135,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Log.d("CONFIRM", "IN START CONFIRM");
+*/
 
+    Log.d("IMAGE", image_path);
         Intent confirm = new Intent(this, ConfirmActivity.class);
+        confirm.putExtra("image_path", image_path);
         startActivity(confirm);
     }
 
@@ -237,10 +241,11 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     image_file = createImageFile();
-                    FileOutputStream fos;
+                    image_path = image_file.getAbsolutePath();
+                  //  FileOutputStream fos;
 
-                    fos = new FileOutputStream(image_file);
-                    fos.write(R.drawable.camera_icon);
+                  //  fos = new FileOutputStream(image_file);
+                  //  fos.write(R.drawable.camera_icon);
                     Log.d("FILE PATH", image_file.getParent());
                 }
                 catch (IOException ex) {
@@ -286,12 +291,12 @@ public class MainActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         // Create a unique image filename
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-        image_path = "photo_" + timeStamp + ".jpg";
+        String path = "photo_" + timeStamp + ".jpg";
 
         // Get file path where the app can save a private image
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
        // Log.d("DIRECTORY", storageDir.);
-        return new File(storageDir, image_path);
+        return new File(storageDir, path);
     }
 
     public String getBatchDirectoryName() {
