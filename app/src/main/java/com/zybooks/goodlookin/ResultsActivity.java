@@ -30,10 +30,12 @@ import java.util.Map;
 
 public class ResultsActivity extends AppCompatActivity implements SearchValueAdapter.ItemClickListener {
     public static final String EXTRA_SEARCH_VAL = "search_string";
+    public static final String EXTRA_LOC_VAL = "loc_string";
     private static final String TAG = "bingSearch";
     private static final String HEADER_SUB_KEY = "Ocp-Apim-Subscription-Key";
     private static final String PRIVATE_KEY_1 = "474c1e670b084ad0bafd268a056602ab";
     private String searchVal;
+    private String location;
     private String url = "https://api.bing.microsoft.com/v7.0/search?q=";
     private ArrayList<ResultValue> info = new ArrayList<>();
     SearchValueAdapter adapter;
@@ -69,10 +71,15 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
         Intent intent = getIntent();
         if (intent.getExtras().containsKey(EXTRA_SEARCH_VAL))
             searchVal = intent.getStringExtra(EXTRA_SEARCH_VAL);
+        if (intent.getExtras().containsKey(EXTRA_LOC_VAL))
+            location = intent.getStringExtra(EXTRA_LOC_VAL);
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
         //Add the search value to the query
+        if(!(location == null)){
+            searchVal += " " + location;
+        }
         String qParam = encodeVal(searchVal);
         url += qParam;
 
@@ -83,7 +90,7 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
                     public void onResponse(JSONObject response) {
                         Log.d(TAG, "JSON response: " + response.toString());
                         info = parseJson(response);
-                        System.out.println("PARSE JSON FUNCTION CALLED");
+
                         RecyclerView recyclerView = findViewById(R.id.result_recycler_view);
                         recyclerView.setLayoutManager(new LinearLayoutManager(ResultsActivity.this));
                         adapter = new SearchValueAdapter(ResultsActivity.this, info);

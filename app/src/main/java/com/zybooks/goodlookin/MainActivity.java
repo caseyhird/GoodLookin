@@ -1,15 +1,29 @@
 package com.zybooks.goodlookin;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -18,31 +32,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
-import android.media.Image;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
-
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -57,7 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]
             {"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
+    private final int REQUEST_LOCATION_PERMISSIONS = 0;
     private Executor executor = Executors.newSingleThreadExecutor();
+    private String locationFromMain = null;
     PreviewView mPreviewView;
     ImageView captureImage;
     ImageView learnMore;
@@ -73,6 +74,22 @@ public class MainActivity extends AppCompatActivity {
         // do something with image capture or send straight to next activity?
         captureImage = findViewById(R.id.captureImg);
         learnMore = findViewById(R.id.learn_more);
+
+        //Toggle button to determine if the search will use last known location
+        ToggleButton myToggle = findViewById(R.id.locToggleButton);
+        myToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    System.out.println("TOGGLE BUTTON ON");
+                    if(hasLocationPermission()){
+                        findLocation();
+                    }
+                } else {
+                    System.out.println("TOGGLE BUTTON OFF");
+                    locationFromMain = null;
+                }
+            }
+        });
 
         learnMore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,8 +131,11 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults); //FIXME zybooks wants this but doesn't make difference?
 
         if(requestCode == REQUEST_CODE_PERMISSIONS){
             if(allPermissionsGranted()){
@@ -123,6 +143,11 @@ public class MainActivity extends AppCompatActivity {
             } else{
                 Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show();
                 this.finish();
+            }
+        }
+        if(requestCode == REQUEST_LOCATION_PERMISSIONS){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                findLocation();
             }
         }
     }
@@ -220,7 +245,50 @@ public class MainActivity extends AppCompatActivity {
         String searchVal = searchText.getText().toString();
         Intent intent = new Intent(this, ResultsActivity.class);
         intent.putExtra(ResultsActivity.EXTRA_SEARCH_VAL, searchVal);
+        intent.putExtra(ResultsActivity.EXTRA_LOC_VAL, locationFromMain);
         startActivity(intent);
     }
 
+    @SuppressLint("MissingPermission")
+    private void findLocation(){
+        FusedLocationProviderClient client =
+                LocationServices.getFusedLocationProviderClient(this);
+        client.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        Log.d("Location Service: ", "location = " + location);
+
+                        if (location != null) {
+                            //Geocoder to parse location object
+                            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+                            try {
+                                //Use geocoder to translate latitude and longitude to city and state to send to results activity
+                                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+
+                                //Set locationFromMain to the cityName based on Lat and Long
+                                locationFromMain = addresses.get(0).getLocality();
+
+                            } catch (IOException e) {
+                                Log.d("Location Service: ", "Failed to get lat/long from geocoder");
+                            }
+                        }
+
+                    }
+                });
+    }
+
+    private boolean hasLocationPermission(){
+        // Request fine location permission if not already granted
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this ,
+                    new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                    REQUEST_LOCATION_PERMISSIONS);
+            return false;
+        }
+
+        return true;
+    }
 }

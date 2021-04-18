@@ -29,6 +29,16 @@
         android:onClick="textSearchClick"
         style="@style/button_style"/>
 
+    <ToggleButton
+        android:id="@+id/locToggleButton"
+        android:layout_width="35dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/captureImg"
+        app:layout_constraintTop_toTopOf="@id/learn_more"/>
+<!--        android:onClick="locButtonClick"-->
+<!--        />-->
+
     <androidx.camera.view.PreviewView
         android:id="@+id/preview_area"
         android:layout_width="match_parent"
