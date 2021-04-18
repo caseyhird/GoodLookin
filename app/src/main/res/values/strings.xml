@@ -33,5 +33,7 @@
     <string name="reset_message">Would you like to reset your search and return to the Home Screen?</string>
     <string name="reset_yes">RESET</string>
     <string name="reset_no">CANCEL</string>
+    <string name="add_terms_to_refine_your_search">Add terms to refine your search</string>
+    <string name="refine_search">Re-Search</string>
 
 </resources>
