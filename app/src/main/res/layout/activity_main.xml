@@ -58,15 +58,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:src="@drawable/camera_icon" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:text="go to confirm"
-        android:onClick="startConfirm"
-        style="@style/button_style"/>
-
     <ImageView
         android:id="@+id/learn_more"
         android:layout_width="70dp"

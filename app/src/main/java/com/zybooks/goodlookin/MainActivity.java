@@ -19,6 +19,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -67,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
     Camera camera;
     Preview preview;
     ProcessCameraProvider cameraProvider;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,14 +119,40 @@ public class MainActivity extends AppCompatActivity {
         Intent confirm = new Intent(this, LearnMoreActivity.class);
         startActivity(confirm);
     }
-
-    // FIXME: FOR TESTING CONFIRM ACTIVITY--DELETE LATER
-    public void startConfirm(View view) {
-        Intent confirm = new Intent(this, ConfirmActivity.class);
-        startActivity(confirm);
-    }
+    
     public void startConfirm() {
-        /*
+    Log.d("IMAGE", image_path);
+        Intent confirm = new Intent(this, ConfirmActivity.class);
+        confirm.putExtra("image_path", image_path);
+      //  confirm.putExtra("cameraProvider", );
+        //startActivity(confirm);
+        startActivityForResult(confirm, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1 && requestCode == 0) {
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    cameraProvider.unbindAll();
+
+                }
+            });
+            try {
+                String label = VisionSearch.detectLabels(image_path);
+                Intent intent = new Intent(this, ResultsActivity.class);
+                intent.putExtra(ResultsActivity.EXTRA_SEARCH_VAL, label);
+                startActivity(intent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -134,13 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        Log.d("CONFIRM", "IN START CONFIRM");
-*/
-
-    Log.d("IMAGE", image_path);
-        Intent confirm = new Intent(this, ConfirmActivity.class);
-        confirm.putExtra("image_path", image_path);
-        startActivity(confirm);
+        super.onDestroy();
     }
 
     private boolean allPermissionsGranted(){

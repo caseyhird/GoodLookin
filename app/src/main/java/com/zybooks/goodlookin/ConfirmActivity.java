@@ -19,38 +19,17 @@ import java.io.File;
 import java.io.IOException;
 
 public class ConfirmActivity extends AppCompatActivity
-        implements ResetDialogFragment.OnResetSelectedListener {
+        implements ResetDialogFragment.OnResetSelectedListener, SensorEventListener {
 
     ImageView image;
     String image_path;
 
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+
     private float mAccel;
     private float mAccelCurrent;
     private float mAccelLast;
-
-    private final SensorEventListener mSensorListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-            mAccelLast = mAccelCurrent;
-            mAccelCurrent = (float) Math.sqrt((double) (x * x + y * y + z * z));
-            float delta = mAccelCurrent - mAccelLast;
-            mAccel = mAccel * 0.9f + delta;
-            if (mAccel > 12) {
-                FragmentManager manager = getSupportFragmentManager();
-                ResetDialogFragment dialog = new ResetDialogFragment();
-                dialog.show(manager, "resetDialog");
-                //backToMain();
-                //Toast.makeText(getApplicationContext(), "Shake event detected", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +45,21 @@ public class ConfirmActivity extends AppCompatActivity
         Bitmap bitmap = BitmapFactory.decodeFile(image_path);
         image.setImageBitmap(bitmap);
 
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this, mAccelerometer);
     }
 
     private void backToMain() {
@@ -75,21 +68,55 @@ public class ConfirmActivity extends AppCompatActivity
 
 
     public void onConfirmClick(View view) throws IOException {
-        Log.d("START","DETECT STARTED");
-        VisionSearch.detectLabels(image_path);
-        Log.d("FINISH","DETECT FINISHED");
-
+        Intent intent = new Intent();
+        setResult(1, intent);
+        finish();
+       // Log.d("START","DETECT STARTED");
+       // VisionSearch.detectLabels(image_path);
+       // Log.d("FINISH","DETECT FINISHED");
     }
 
     public void onRetakeClick(View view) {
-        File file = new File(image_path);
-        boolean deleted = file.delete();
-        backToMain();
+        Intent intent = new Intent();
+        setResult(0, intent);
+        finish();
+      //  File file = new File(image_path);
+      //  boolean deleted = file.delete();
+      //  backToMain();
     }
 
     @Override
     public void onResetSelectedClick(Boolean reset) {
         if (reset)
             backToMain();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Log.d("SENSOR", "SENSOR LISTENING");
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+        mAccelLast = mAccelCurrent;
+        mAccelCurrent = (float) Math.sqrt((double) (x * x + y * y + z * z));
+        float delta = mAccelCurrent - mAccelLast;
+        mAccel = mAccel * 0.9f + delta;
+        if (mAccel > 12) {
+            Log.d("SHAKE", "IN SHAKE CALL");
+            askToReset();
+            //backToMain();
+            //Toast.makeText(getApplicationContext(), "Shake event detected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void askToReset() {
+        FragmentManager manager = getSupportFragmentManager();
+        ResetDialogFragment dialog = new ResetDialogFragment();
+        dialog.show(manager, "resetDialog");
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

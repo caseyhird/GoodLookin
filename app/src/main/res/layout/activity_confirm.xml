@@ -25,6 +25,7 @@
         android:onClick="onRetakeClick"
         android:text="@string/retake_button"
         style="@style/button_style"/>
+
     <Button
         android:id="@+id/confirm_button"
         android:layout_width="wrap_content"

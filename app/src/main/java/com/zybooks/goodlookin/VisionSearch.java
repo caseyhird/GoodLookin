@@ -72,7 +72,7 @@ public class VisionSearch {
 */
 
     // label detection function from https://www.programcreek.com/java-api-examples/?class=com.google.cloud.vision.v1.AnnotateImageResponse&method=getLabelAnnotationsList
-    public static void detectLabels(String filepath) throws IOException {
+    public static String detectLabels(String filepath) throws IOException {
         // Initialize client that will be used to send requests. This client only needs to be created
         // once, and can be reused for multiple requests. After completing all of your requests, call
         // the "close" method on the client to safely clean up any remaining background resources.
@@ -110,14 +110,12 @@ public class VisionSearch {
 
 
       //  ) {
-
+        String label = "";
             // The path to the image file to annotate
             //String fileName = "./resources/ic_launcher_foreground.xml";
             Log.d("CLIENT", "GOT CLIENT");
             // Reads the image file into memory
-            // FIXME: IS THIS AN ACCEPTABLE MINIMUM API LEVEL?
-            if (Build.VERSION.SDK_INT >= 26) {
-                filepath = "/Users/casey/Documents/Academic/Spring2021/CPSC4150/glasses.jpg";
+             //   filepath = ;
                 Path path = Paths.get(filepath);
                 byte[] data = Files.readAllBytes(path);
                 ByteString imgBytes = ByteString.copyFrom(data);
@@ -137,17 +135,23 @@ public class VisionSearch {
                 for (AnnotateImageResponse res : responses) {
                     if (res.hasError()) {
                         Log.d("Error: ", res.getError().getMessage());
-                        return;
+                        return "";
                     }
-
+                    label = "";
+                    int x=0;
                     for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
                         // Need to getAllFields(), each should return a label and the strength
                         // of that label, send this list to the search
-                        annotation.getAllFields()
-                                .forEach((k, v) -> Log.d("Label: ", k + " " + v.toString()));
+                       // annotation.getAllFields()
+                       //         .forEach((k, v) -> Log.d("Label: ", k + " " + v.toString()));
+                        if (x<2)
+                            label = label + annotation.getDescription() + " ";
+                        x++;
+                        //Log.d("LABEL", label);
                     }
                 }
-            }
+
+            return label;
        // }
     }
 
