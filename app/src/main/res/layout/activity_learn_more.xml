@@ -21,4 +21,9 @@
         android:layout_margin="10dp"
         android:text="@string/learn_more_description"
         style="@style/text_style"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="reset"
+        android:onClick="testReset"/>
 </LinearLayout>

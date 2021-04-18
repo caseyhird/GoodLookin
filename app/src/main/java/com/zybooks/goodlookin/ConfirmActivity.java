@@ -1,6 +1,7 @@
 package com.zybooks.goodlookin;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,7 +17,8 @@ import android.widget.ImageView;
 import java.io.File;
 import java.io.IOException;
 
-public class ConfirmActivity extends AppCompatActivity {
+public class ConfirmActivity extends AppCompatActivity
+        implements ResetDialogFragment.OnResetSelectedListener {
 
     ImageView image;
     Bitmap btm;
@@ -38,7 +40,10 @@ public class ConfirmActivity extends AppCompatActivity {
             float delta = mAccelCurrent - mAccelLast;
             mAccel = mAccel * 0.9f + delta;
             if (mAccel > 12) {
-                backToMain();
+                FragmentManager manager = getSupportFragmentManager();
+                ResetDialogFragment dialog = new ResetDialogFragment();
+                dialog.show(manager, "resetDialog");
+                //backToMain();
                 //Toast.makeText(getApplicationContext(), "Shake event detected", Toast.LENGTH_SHORT).show();
             }
         }
@@ -85,5 +90,11 @@ public class ConfirmActivity extends AppCompatActivity {
         File file = new File(image_path);
         boolean deleted = file.delete();
         backToMain();
+    }
+
+    @Override
+    public void onResetSelectedClick(Boolean reset) {
+        if (reset)
+            backToMain();
     }
 }

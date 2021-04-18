@@ -1,6 +1,7 @@
 package com.zybooks.goodlookin;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -8,8 +9,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.View;
 
-public class LearnMoreActivity extends AppCompatActivity {
+public class LearnMoreActivity extends AppCompatActivity
+        implements ResetDialogFragment.OnResetSelectedListener {
 
 
     private SensorManager mSensorManager;
@@ -28,7 +31,11 @@ public class LearnMoreActivity extends AppCompatActivity {
             float delta = mAccelCurrent - mAccelLast;
             mAccel = mAccel * 0.9f + delta;
             if (mAccel > 12) {
-                backToMain();
+                // Create Reset dialog
+                FragmentManager manager = getSupportFragmentManager();
+                ResetDialogFragment dialog = new ResetDialogFragment();
+                dialog.show(manager, "resetDialog");
+                //backToMain();
                 //Toast.makeText(getApplicationContext(), "Shake event detected", Toast.LENGTH_SHORT).show();
             }
         }
@@ -47,5 +54,17 @@ public class LearnMoreActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn_more);
+    }
+
+    @Override
+    public void onResetSelectedClick(Boolean reset) {
+        if (reset)
+            backToMain();
+    }
+
+    public void testReset(View view) {
+        FragmentManager manager = getSupportFragmentManager();
+        ResetDialogFragment dialog = new ResetDialogFragment();
+        dialog.show(manager, "resetDialog");
     }
 }

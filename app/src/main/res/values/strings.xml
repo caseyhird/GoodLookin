@@ -29,5 +29,9 @@
 }
 </string>
     <string name="no_val">no val</string>
+    <string name="reset_title">Reset?</string>
+    <string name="reset_message">Would you like to reset your search and return to the Home Screen?</string>
+    <string name="reset_yes">RESET</string>
+    <string name="reset_no">CANCEL</string>
 
 </resources>
