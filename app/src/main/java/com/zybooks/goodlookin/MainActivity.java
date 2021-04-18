@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         Intent confirm = new Intent(this, LearnMoreActivity.class);
         startActivity(confirm);
     }
-    
+
     public void startConfirm() {
     Log.d("IMAGE", image_path);
         Intent confirm = new Intent(this, ConfirmActivity.class);
@@ -239,71 +239,33 @@ public class MainActivity extends AppCompatActivity {
         // FIXME changed from createSurfaceProvider()
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
         // FIXME removing imageAnalysis before imageCapture
-        camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture); //FIXME add , imageCapture
+        camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);//, imageCapture); //FIXME add , imageCapture
         // was Camera
 
         captureImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("CLICK", "CLICKED");
-/*
-                // Get unique file name
-                SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
-                //File file = new File(getBatchDirectoryName(), mDateFormat.format(new Date())+ ".jpg");
-                String path = mDateFormat.format(new Date());
-                File file = null;
-                try {
-                    file = File.createTempFile(path, ".jpg", null);
-                } catch (IOException e) {
-                    finish();
-                }
-                */
-
                 try {
                     image_file = createImageFile();
                     image_path = image_file.getAbsolutePath();
-                  //  FileOutputStream fos;
-
-                  //  fos = new FileOutputStream(image_file);
-                  //  fos.write(R.drawable.camera_icon);
-                    Log.d("FILE PATH", image_file.getParent());
                 }
                 catch (IOException ex) {
-                    // Error occurred while creating the File
                     ex.printStackTrace();
-                    Log.d("FILE", "FILE NOT CREATED***********************************************************************************************");
                 }
 
-               // File file = new File(Environment.getExternalStorageDirectory(), image_path);
                 ImageCapture.OutputFileOptions outputFileOptions;
-                //if (file != null)
                 outputFileOptions = new ImageCapture.OutputFileOptions.Builder(image_file).build();
 
                 imageCapture.takePicture(outputFileOptions, executor, new ImageCapture.OnImageSavedCallback () {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Log.d("SAVED", "IMAGE SAVED");
                         startConfirm();
-                        /*
-                        new Handler().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Log.d("SAVED", "IMAGE SAVED");
-                                //camera.release();
-                                startConfirm();
-                                Toast.makeText(MainActivity.this, "Image Saved successfully", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        */
                     }
                     @Override
                     public void onError(@NonNull ImageCaptureException error) {
-                        Log.d("ERROR", "IMAGE NOT SAVED");
                         error.printStackTrace();
                     }
                 });
-
-
             }
         });
     }
@@ -315,7 +277,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Get file path where the app can save a private image
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-       // Log.d("DIRECTORY", storageDir.);
         return new File(storageDir, path);
     }
 
