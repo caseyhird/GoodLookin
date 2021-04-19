@@ -9,63 +9,67 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 public class LearnMoreActivity extends AppCompatActivity
-        implements ResetDialogFragment.OnResetSelectedListener {
-
+        implements ResetDialogFragment.OnResetSelectedListener, SensorEventListener {
 
     private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+
     private float mAccel;
     private float mAccelCurrent;
     private float mAccelLast;
-
-    private final SensorEventListener mSensorListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-            mAccelLast = mAccelCurrent;
-            mAccelCurrent = (float) Math.sqrt((double) (x * x + y * y + z * z));
-            float delta = mAccelCurrent - mAccelLast;
-            mAccel = mAccel * 0.9f + delta;
-            if (mAccel > 12) {
-                // Create Reset dialog
-                FragmentManager manager = getSupportFragmentManager();
-                ResetDialogFragment dialog = new ResetDialogFragment();
-                dialog.show(manager, "resetDialog");
-                //backToMain();
-                //Toast.makeText(getApplicationContext(), "Shake event detected", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        }
-    };
-
-    private void backToMain() {
-        //Intent confirm = new Intent(this, MainActivity.class);
-        //startActivity(confirm);
-        super.onBackPressed();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_learn_more);
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this, mAccelerometer);
     }
 
     @Override
     public void onResetSelectedClick(Boolean reset) {
-        if (reset)
-            backToMain();
+        if (reset) super.onBackPressed();
     }
 
-    public void testReset(View view) {
+    public void askToReset() {
         FragmentManager manager = getSupportFragmentManager();
         ResetDialogFragment dialog = new ResetDialogFragment();
         dialog.show(manager, "resetDialog");
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+        mAccelLast = mAccelCurrent;
+        mAccelCurrent = (float) Math.sqrt((double) (x * x + y * y + z * z));
+        float delta = mAccelCurrent - mAccelLast;
+        mAccel = mAccel * 0.9f + delta;
+        if (mAccel > 12) {
+            Log.d("SHAKE", "IN SHAKE CALL");
+            askToReset();
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
 }

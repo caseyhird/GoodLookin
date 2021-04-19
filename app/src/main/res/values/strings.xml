@@ -3,10 +3,12 @@
     <string name="learn_more_title">What is GoodLookin?</string>
     <string name="learn_more_description">GoodLookin is a new searching app that allows you to search
         for items around you by taking a picture! To use the app, simply open it up and take a picture
-        of whatever you want to find. You can then see the keywords that were used to search for that
-        object and change/emphasize certain keywords that you really want to find (or, if you are so
-        inclined, just use a normal text search). Finally see the results of your search based on your
-        current location and find the best option close to you!
+        of whatever you want to find. You can also use the search bar at the top to do a normal search.
+        At the bottom left is a button you can toggle to activate your location-turn this on to include
+        your current location in your search. Once you have conducted your search, you can then see the
+        keywords that were used in the search, and add to them to refine your search further. Finally,
+        see the results of your search based on your current location and find the best option
+        close to you!
         </string>
     <string name="pic_description">Most recent picture taken</string>
     <string name="confirm_button">CONFIRM</string>

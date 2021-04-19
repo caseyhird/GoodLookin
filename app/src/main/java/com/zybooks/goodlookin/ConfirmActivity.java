@@ -21,6 +21,9 @@ import java.io.IOException;
 public class ConfirmActivity extends AppCompatActivity
         implements ResetDialogFragment.OnResetSelectedListener, SensorEventListener {
 
+    public static final String EXTRA_IMAGE_PATH = "image_path";
+    public static final int RESULT_CONFIRM = 1;
+    public static final int RESULT_RETAKE = 0;
     ImageView image;
     String image_path;
 
@@ -36,64 +39,68 @@ public class ConfirmActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm);
 
-        // external storage version
+        // Get image path from main activity
         Intent intent = getIntent();
         image_path = intent.getStringExtra("image_path");
-
         image = findViewById(R.id.takenImage);
-
+        // Decode image and set in image view
         Bitmap bitmap = BitmapFactory.decodeFile(image_path);
         image.setImageBitmap(bitmap);
-
+        // Set up accelerometer sensor listener
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
     }
 
+    /*
+        Register event listener for accelerometer.
+     */
     @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    /*
+        Unregister event listener for accelerometer.
+     */
     @Override
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this, mAccelerometer);
     }
 
-    private void backToMain() {
-        super.onBackPressed();
-    }
-
-
+    /*
+        Return image confirmed to main activity.
+     */
     public void onConfirmClick(View view) throws IOException {
         Intent intent = new Intent();
-        setResult(1, intent);
+        setResult(RESULT_CONFIRM, intent);
         finish();
-       // Log.d("START","DETECT STARTED");
-       // VisionSearch.detectLabels(image_path);
-       // Log.d("FINISH","DETECT FINISHED");
     }
 
+    /*
+        Return retake image to main activity.
+     */
     public void onRetakeClick(View view) {
         Intent intent = new Intent();
-        setResult(0, intent);
+        setResult(RESULT_RETAKE, intent);
         finish();
-      //  File file = new File(image_path);
-      //  boolean deleted = file.delete();
-      //  backToMain();
     }
 
+    /*
+        Reset app to main when selected in dialog.
+     */
     @Override
     public void onResetSelectedClick(Boolean reset) {
-        if (reset)
-            backToMain();
+        if (reset) super.onBackPressed();
     }
 
+    /*
+        Listen for shake from accelerometer.
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.d("SENSOR", "SENSOR LISTENING");
         float x = event.values[0];
         float y = event.values[1];
         float z = event.values[2];
@@ -101,14 +108,12 @@ public class ConfirmActivity extends AppCompatActivity
         mAccelCurrent = (float) Math.sqrt((double) (x * x + y * y + z * z));
         float delta = mAccelCurrent - mAccelLast;
         mAccel = mAccel * 0.9f + delta;
-        if (mAccel > 12) {
-            Log.d("SHAKE", "IN SHAKE CALL");
-            askToReset();
-            //backToMain();
-            //Toast.makeText(getApplicationContext(), "Shake event detected", Toast.LENGTH_SHORT).show();
-        }
+        if (mAccel > 12) { askToReset(); }
     }
 
+    /*
+        Start dialog after shake event to allow user to confirm reset.
+     */
     public void askToReset() {
         FragmentManager manager = getSupportFragmentManager();
         ResetDialogFragment dialog = new ResetDialogFragment();
@@ -116,7 +121,5 @@ public class ConfirmActivity extends AppCompatActivity
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 }

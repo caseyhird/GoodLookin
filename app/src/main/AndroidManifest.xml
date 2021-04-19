@@ -10,15 +10,21 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/search_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/search_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoodLookin">
-        <activity android:name=".LearnMoreActivity"></activity>
-        <activity android:name=".ResultsActivity" />
-        <activity android:name=".ConfirmActivity" />
-        <activity android:name=".MainActivity">
+        <!-- android:screenOrientation="sensorPortrait" -->
+
+        <activity android:name=".LearnMoreActivity"
+            android:screenOrientation="sensorPortrait" />
+        <activity android:name=".ResultsActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".ConfirmActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     File image_file;
 
     // Permsission and androix camera from https://akhilbattula.medium.com/android-camerax-java-example-aeee884f9102
-    // note requesting permisson for camera and external storage?
+    // note requesting permisson for camera and external storage
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]
             {"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
@@ -74,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
         searchText = findViewById(R.id.searchEditText);
         mPreviewView = findViewById(R.id.preview_area);
-        // do something with image capture or send straight to next activity?
         captureImage = findViewById(R.id.captureImg);
         learnMore = findViewById(R.id.learn_more);
 
@@ -113,29 +112,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /*
+        Start learn more activity.
+     */
     public void startLearnMore() {
         Intent confirm = new Intent(this, LearnMoreActivity.class);
         startActivity(confirm);
     }
 
+    /*
+        Start confirm activity
+     */
     public void startConfirm() {
-    Log.d("IMAGE", image_path);
         Intent confirm = new Intent(this, ConfirmActivity.class);
-        confirm.putExtra("image_path", image_path);
-      //  confirm.putExtra("cameraProvider", );
-        //startActivity(confirm);
+        confirm.putExtra(ConfirmActivity.EXTRA_IMAGE_PATH, image_path);
         startActivityForResult(confirm, 0);
     }
 
+    /*
+        When confirm activity returns a value, if image was confirmed start the vision search
+        and if not wait for a new picture.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 1 && requestCode == 0) {
+        if (resultCode == ConfirmActivity.RESULT_CONFIRM && requestCode == 0) {
             MainActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     cameraProvider.unbindAll();
-
                 }
             });
             try {
@@ -149,35 +154,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+        Disconnect camera when main activity is destoryed.
+     */
     @Override
     protected void onDestroy() {
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 cameraProvider.unbindAll();
-
             }
         });
         super.onDestroy();
     }
 
+    /*
+        Check that app has all necessary permissions to use the camera and store images.
+     */
     private boolean allPermissionsGranted(){
-
         for (String permission : REQUIRED_PERMISSIONS){
-            // FIXME: can just pass 'this' for context
             if(ContextCompat.checkSelfPermission(getApplicationContext(), permission) != PackageManager.PERMISSION_GRANTED){
-                Log.d("PERMISSION DONT HAVE", permission);
                 return false;
             }
         }
         return true;
     }
 
+    /*
+        Check that all permission have in fact been granted, and if so start the camera.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults); //FIXME zybooks wants this but doesn't make difference?
-
         if(requestCode == REQUEST_CODE_PERMISSIONS){
             if(allPermissionsGranted()){
                 startCamera();
@@ -193,15 +200,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+        Start camera
+     */
     private void startCamera() {
-
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         cameraProviderFuture.addListener(new Runnable() {
             @Override
             public void run() {
                 try {
-                    // made global
                     cameraProvider = cameraProviderFuture.get();
                     bindPreview(cameraProvider);
                 } catch (ExecutionException | InterruptedException e) {
@@ -212,8 +220,10 @@ public class MainActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
+    /*
+        Bind preview and image capture to camera, and set up image capture click
+     */
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
-
         preview = new Preview.Builder().build();
 
         // Requiring lens facing back
@@ -234,11 +244,12 @@ public class MainActivity extends AppCompatActivity {
                 .setTargetRotation(this.getWindowManager().getDefaultDisplay().getRotation())
                 .build();
 
-        // FIXME changed from createSurfaceProvider()
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-        // FIXME removing imageAnalysis before imageCapture
-        camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);//, imageCapture); //FIXME add , imageCapture
-        // was Camera
+        camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageCapture);
+        /*
+            When image capture is clicked, save image to external storage and pass file path
+            to confirm activity.
+         */
         captureImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -267,6 +278,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*
+        Create external storage file to hold new image.
+     */
     private File createImageFile() throws IOException {
         // Create a unique image filename
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
@@ -277,19 +291,9 @@ public class MainActivity extends AppCompatActivity {
         return new File(storageDir, path);
     }
 
-    public String getBatchDirectoryName() {
-
-        String app_folder_path = "";
-        app_folder_path = Environment.getExternalStorageDirectory().toString() + "/images";
-        File dir = new File(app_folder_path);
-        if (!dir.exists() && !dir.mkdirs()) {
-
-        }
-
-        return app_folder_path;
-    }
-
-
+    /*
+        Start normal text search when search bar is used.
+     */
     public void textSearchClick(View view) {
         String searchVal = searchText.getText().toString();
         Intent intent = new Intent(this, ResultsActivity.class);

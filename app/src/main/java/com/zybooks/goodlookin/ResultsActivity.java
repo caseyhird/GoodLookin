@@ -1,6 +1,10 @@
 package com.zybooks.goodlookin;
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +34,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ResultsActivity extends AppCompatActivity implements SearchValueAdapter.ItemClickListener {
+public class ResultsActivity extends AppCompatActivity
+        implements SearchValueAdapter.ItemClickListener,
+        ResetDialogFragment.OnResetSelectedListener, SensorEventListener {
     public static final String EXTRA_SEARCH_VAL = "search_string";
     public static final String EXTRA_LOC_VAL = "loc_string";
     private static final String TAG = "bingSearch";
@@ -43,6 +50,13 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
     SearchValueAdapter adapter;
     EditText refineET;
     RequestQueue queue;
+
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+
+    private float mAccel;
+    private float mAccelCurrent;
+    private float mAccelLast;
 
     private String encodeVal(String input){
 
@@ -70,6 +84,10 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
+
+        // Set up accelerometer shake detection
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         // When searching by text, get search string from intent
         Intent intent = getIntent();
@@ -123,6 +141,47 @@ public class ResultsActivity extends AppCompatActivity implements SearchValueAda
         // Add the request to the RequestQueue
         queue.add(requestObj);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this, mAccelerometer);
+    }
+
+    @Override
+    public void onResetSelectedClick(Boolean reset) {
+        if (reset) super.onBackPressed();
+    }
+
+    public void askToReset() {
+        FragmentManager manager = getSupportFragmentManager();
+        ResetDialogFragment dialog = new ResetDialogFragment();
+        dialog.show(manager, "resetDialog");
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+        mAccelLast = mAccelCurrent;
+        mAccelCurrent = (float) Math.sqrt((double) (x * x + y * y + z * z));
+        float delta = mAccelCurrent - mAccelLast;
+        mAccel = mAccel * 0.9f + delta;
+        if (mAccel > 12) {
+            Log.d("SHAKE", "IN SHAKE CALL");
+            askToReset();
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     public void refineClick(View view){
         refineET = findViewById(R.id.refineEditText);
